@@ -8,27 +8,15 @@ const mainRouter = require("./src/controllers/main");
 const ChatRoom = require("./src/models/ChatRoom");
 const io = new Server(server);
 
-io.on("connection", (socket) => {
-  console.log("user connected");
+io.on("connection", async (socket) => {
   socket.on("CHAT_MESSAGE_REQ", (payload) => {
-    console.log(payload);
+    socket.broadcast.emit("CHAT_MESSAGE_RES", {
+      from: socket.id,
+      data: { message: payload.data.message, userName: payload.data.userName },
+    });
   });
 });
 
 server.listen(3000, () => {
   console.log("Listening socket on *:3000");
 });
-
-app.listen(3001, () => {
-  console.log("Running API from *:3001");
-});
-
-app.use("/api", mainRouter);
-
-try {
-  db.authenticate();
-  db.sync({ alter: true });
-  console.log("Database connected");
-} catch (error) {
-  console.log(error);
-}
